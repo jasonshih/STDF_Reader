@@ -1,0 +1,84 @@
+{
+  "T1U": {
+    "rec_typ": 11,
+    "rec_sub": 1,
+    "body": [
+      ["UNSIGNED_1", "U1"],
+      ["UNSIGNED_2", "U2"],
+      ["UNSIGNED_4", "U4"]
+    ]
+  },
+  
+  "T1I": {
+    "rec_typ": 11,
+    "rec_sub": 2,
+    "body": [
+      ["SIGNED_1", "I1"],
+      ["SIGNED_2", "I2"],
+      ["SIGNED_4", "I4"]
+    ]
+  },
+
+  "T1F": {
+    "rec_typ": 11,
+    "rec_sub": 3,
+    "body": [
+      ["FLOAT", "R4"],
+      ["DOUBLE", "R8"]
+    ]
+  },
+
+  "T1N": {
+    "rec_typ": 11,
+    "rec_sub": 4,
+    "body": [
+      ["NIBBLE_1", "N1"],
+      ["NIBBLE_2", "N1"]
+    ]
+  },
+
+  "TCn": {
+    "rec_typ": 11,
+    "rec_sub": 5,
+    "body": [
+      ["STRING_1", "Cn"],
+      ["STRING_2", "Cn"],
+      ["STRING_7", "Cn"]
+    ]
+  },
+
+  "TBn": {
+    "rec_typ": 11,
+    "rec_sub": 6,
+    "body": [
+      ["BYTE_1", "Bn"],
+      ["BYTE_2", "Bn"],
+      ["BYTE_7", "Bn"]
+    ]
+  },
+
+  "TA1": {
+    "rec_typ": 11,
+    "rec_sub": 7,
+    "body": [
+      ["ARR_ICNT", "U1"],
+      ["ARR_U1", "K0U1"],
+      ["ARR_U2", "K0U2"],
+      ["ARR_I1", "K0I1"],
+      ["ARR_I2", "K0I2"],
+      ["ARR_R4", "K0R4"],
+      ["ARR_R8", "K0R8"]
+    ]
+  },
+
+  "TA2": {
+    "rec_typ": 11,
+    "rec_sub": 8,
+    "body": [
+      ["ARR_ICNT", "U1"],
+      ["ARR_N1", "K0N1"],
+      ["ARR_Cn", "K0Cn"],
+      ["ARR_Bn", "K0Bn"]
+    ]
+  }
+}
