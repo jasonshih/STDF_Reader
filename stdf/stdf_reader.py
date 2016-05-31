@@ -26,7 +26,6 @@ __author__ = 'cahyo primawidodo 2016'
 
 class Reader:
     HEADER_SIZE = 4
-    # NOT YET Verified: Bn, Vn
 
     def __init__(self, stdf_type_json='stdf_v4.json'):
         self.log = logging.getLogger(self.__class__.__name__)
@@ -128,7 +127,7 @@ class Reader:
 
                     for i in range(n):
                         fmt_act = mo.group(2)
-                        fmt, buf = self.__get_data(fmt_act, body_raw)
+                        fmt, buf = self.__get_buffer(fmt_act, body_raw)
                         d, = struct.unpack(self.e + fmt, buf)
                         array_data.append(d)
                     body[field] = array_data
@@ -144,7 +143,7 @@ class Reader:
                         while idx == 0:
                             idx, = struct.unpack(self.e + 'B', body_raw.read(1))
                         fmt_vn = vn_map[idx]
-                        fmt, buf = self.__get_data(fmt_vn, body_raw)
+                        fmt, buf = self.__get_buffer(fmt_vn, body_raw)
                         d, = struct.unpack(self.e + fmt, buf)
                         array_data.append(d)
                     body[field] = array_data
@@ -152,7 +151,7 @@ class Reader:
 
                 elif fmt_raw == 'N1':
                     if odd_nibble:
-                        fmt, buf = self.__get_data(fmt_raw, body_raw)
+                        fmt, buf = self.__get_buffer(fmt_raw, body_raw)
                         nibble, = struct.unpack(self.e + fmt, buf)
                         lsb = nibble & 0xF
                         msb = nibble >> 4
@@ -163,7 +162,7 @@ class Reader:
                         odd_nibble = True
 
                 else:
-                    fmt, buf = self.__get_data(fmt_raw, body_raw)
+                    fmt, buf = self.__get_buffer(fmt_raw, body_raw)
 
                     if fmt_raw == 'Bn':
                         body[field] = struct.unpack(fmt, buf)
@@ -180,7 +179,7 @@ class Reader:
         body_raw.close()
         return rec_name, body
 
-    def __get_data(self, fmt_raw, body_raw):
+    def __get_buffer(self, fmt_raw, body_raw):
         fmt = self.__get_format(fmt_raw, body_raw)
         size = struct.calcsize(fmt)
 

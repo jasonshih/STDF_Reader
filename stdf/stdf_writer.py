@@ -144,7 +144,7 @@ class Writer:
 
         return fmt_ret, dat_ret
 
-    def pack_body(self, field_fmt, field_data) -> bytearray:
+    def _pack_body(self, field_fmt, field_data) -> bytearray:
         body_fmt = ''
         body_data = []
         odd_nibble = True
@@ -173,7 +173,7 @@ class Writer:
         return body_fmt, body_data
 
     @staticmethod
-    def pack_header(length, typ, sub) -> bytearray:
+    def _pack_header(length, typ, sub) -> bytearray:
         header_fmt = 'HBB'
         header_data = [length, typ, sub]
         return header_fmt, header_data
@@ -181,12 +181,12 @@ class Writer:
     def pack_record(self, rec_name, data):
 
         mapping = self.STDF_TYPE[rec_name]['body']
-        fmt_b, data_b = self.pack_body(mapping, data)
+        fmt_b, data_b = self._pack_body(mapping, data)
 
         rec_len = struct.calcsize('HBB' + fmt_b) - 4
         rec_typ = self.STDF_TYPE[rec_name]['rec_typ']
         rec_sub = self.STDF_TYPE[rec_name]['rec_sub']
-        fmt_h, data_h = self.pack_header(rec_len, rec_typ, rec_sub)
+        fmt_h, data_h = self._pack_header(rec_len, rec_typ, rec_sub)
 
         fmt = fmt_h + fmt_b
         *d, = data_h + data_b
