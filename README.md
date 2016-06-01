@@ -3,6 +3,9 @@ This library is meant to read the binary STDF file (*.std), which is
 the standard test data format commonly used by Automated Test Equipment
 such as Teradyne, Advantest and LTX testers.
 
+### Installation
+    pip install stdf
+
 ### Usage
     from stdf.stdf_reader import Reader()
     stdf = Reader('stdf/stdf_v4.json')
@@ -17,4 +20,4 @@ such as Teradyne, Advantest and LTX testers.
    
 ### Limitation
 - STDF V4 format only.
-- Python 3.0 and above.
+- Python 3.3 and above.

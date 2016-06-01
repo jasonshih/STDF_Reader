@@ -17,7 +17,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.0',
+    version='0.1.1',
 
     description='Read a raw STDF file and iterate between records, easily.',
     long_description=long_description,
@@ -75,7 +75,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['json', 'struct'],
+    install_requires=[],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
@@ -91,6 +91,7 @@ setup(
     # have to be included in MANIFEST.in as well.
     package_data={
         'stdf': ['stdf_v4.json', 'fmt_mapping.json'],
+        '': ['README.md']
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
