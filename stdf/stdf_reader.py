@@ -73,17 +73,19 @@ class Reader:
 
     def read_record(self):
         header = self._read_and_unpack_header()
-        # rec_name = self.REC_NAME.setdefault((header[1], header[2]), 'UNK')
-        # self.log.debug('len={:0>3}, rec={}'.format(header[0], rec_name))
 
         if header:
             rec_size, _, _ = header
             self.log.debug('BODY start at tell={:0>8}'.format(self.STDF_IO.tell()))
-            self.body_start = self.STDF_IO.tell()
             body_raw = self._read_body(rec_size)
             rec_name, body = self._unpack_body(header, body_raw)
             self.log.debug('BODY end at tell={:0>8}'.format(self.STDF_IO.tell()))
+
+            if rec_name == 'FAR':
+                self.__set_endian(body['CPU_TYPE'])
+
             return rec_name, header, body
+
         else:
             self.log.info('closing STDF_IO at tell={:0>8}'.format(self.STDF_IO.tell()))
             self.STDF_IO.close()
@@ -91,12 +93,17 @@ class Reader:
 
     def _read_and_unpack_header(self):
         header_raw = self.STDF_IO.read(self.HEADER_SIZE)
+
+        header = False
         if header_raw:
-            return struct.unpack(self.e + 'HBB', header_raw)
-        else:
-            return False
+            header = struct.unpack(self.e + 'HBB', header_raw)
+            rec_name = self.REC_NAME.setdefault((header[1], header[2]), 'UNK')
+            self.log.debug('len={:0>3}, rec={}'.format(header[0], rec_name))
+
+        return header
 
     def _read_body(self, rec_size):
+        self.body_start = self.STDF_IO.tell()
         body_raw = io.BytesIO(self.STDF_IO.read(rec_size))
         assert len(body_raw.getvalue()) == rec_size
         return body_raw
@@ -218,6 +225,14 @@ class Reader:
 
         return str(n) + posfix if n else ''
 
+    def __set_endian(self, cpu_type):
+        if cpu_type == 1:
+            self.e = '>'
+        elif cpu_type == 2:
+            self.e = '<'
+        else:
+            self.log.critical('Value of FAR: CPU_TYPE is not 1 or 2. Invalid endian.')
+            raise IOError(cpu_type)
 
     @staticmethod
     def __get_multiplier(field, body):
