@@ -17,8 +17,10 @@ such as Teradyne, Advantest and LTX testers.
         if rec_name == 'FAR':
             # body is a dictionary with field name as keys.
             cpu_type = body['CPU_TYPE']
-   
+
+### Documentation
+Visit https://pythonhosted.org/stdf/
+
 ### Limitation
 - STDF V4 format only.
 - Python 3.3 and above.
-
