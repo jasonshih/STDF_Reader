@@ -30,7 +30,7 @@ if __name__ == '__main__':
     p = Path('/Users/cahyo/Documents/data/oca')
     in_file = str(p / 'ASETKH-UFLX0058_1_WSBU-NN450-12B-04p1_1_DP5403.K2_15_20150303175521.stdf')
 
-    stdf = Reader('stdf/stdf_v4.json')
+    stdf = Reader()
     stdf.load_stdf_file(stdf_file=in_file)
 
     with open('output.txt', mode='wt', encoding='utf-8') as fout:

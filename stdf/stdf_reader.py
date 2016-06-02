@@ -28,7 +28,7 @@ __author__ = 'cahyo primawidodo 2016'
 class Reader:
     HEADER_SIZE = 4
 
-    def __init__(self, stdf_type_json='stdf_v4.json'):
+    def __init__(self, stdf_type_json='stdf/stdf_v4.json'):
         self.log = logging.getLogger(self.__class__.__name__)
         self.STDF_TYPE = {}
         self.STDF_IO = io.BytesIO(b'')
@@ -85,7 +85,7 @@ class Reader:
             self.log.debug('BODY end at tell={:0>8}'.format(self.STDF_IO.tell()))
             return rec_name, header, body
         else:
-            self.log.error('closing STDF_IO at tell={:0>8}'.format(self.STDF_IO.tell()))
+            self.log.info('closing STDF_IO at tell={:0>8}'.format(self.STDF_IO.tell()))
             self.STDF_IO.close()
             return False
 
