@@ -95,7 +95,7 @@ def test_read_seq_of_bytes(rd):
     x = rd.read_record()
 
     assert x == ('TBn', (13, 11, 6),
-                 {'BYTE_1': (1,),
+                 {'BYTE_1': 1,
                   'BYTE_2': (2, 3),
                   'BYTE_7': (4, 5, 6, 7, 8, 9, 10)})
     assert not rd.read_record()

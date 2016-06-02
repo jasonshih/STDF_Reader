@@ -20,6 +20,7 @@ import io
 import struct
 import logging
 import re
+import math
 
 __author__ = 'cahyo primawidodo 2016'
 
@@ -37,10 +38,10 @@ class Reader:
 
         self.body_start = 0
 
-        self.load_fmt_mapping()
-        self.load_stdf_type(json_file=stdf_type_json)
+        self._load_byte_fmt_mapping()
+        self._load_stdf_type(json_file=stdf_type_json)
 
-    def load_stdf_type(self, json_file):
+    def _load_stdf_type(self, json_file):
         with open(json_file) as fp:
             self.STDF_TYPE = json.load(fp)
 
@@ -48,28 +49,25 @@ class Reader:
             typ_sub = (v['rec_typ'], v['rec_sub'])
             self.REC_NAME[typ_sub] = k
 
-    def load_fmt_mapping(self, json_file=None):
-
-        if json_file is None:
-            self.FMT_MAP = {
-                "U1": "B",
-                "U2": "H",
-                "U4": "I",
-                "I1": "b",
-                "I2": "h",
-                "I4": "i",
-                "R4": "f",
-                "R8": "d",
-                "B1": "B",
-                "C1": "c",
-                "N1": "B"
+    def _load_byte_fmt_mapping(self):
+        self.FMT_MAP = {
+            "U1": "B",
+            "U2": "H",
+            "U4": "I",
+            "U8": "Q",
+            "I1": "b",
+            "I2": "h",
+            "I4": "i",
+            "I8": "q",
+            "R4": "f",
+            "R8": "d",
+            "B1": "B",
+            "C1": "c",
+            "N1": "B"
             }
-        else:
-            with open(json_file) as fp:
-                self.FMT_MAP = json.load(fp)
 
     def load_stdf_file(self, stdf_file):
-        folder = '/Users/cahyo/Documents/data/oca/'
+        folder = ''
         with open(folder + stdf_file, mode='rb') as fs:
             self.STDF_IO = io.BytesIO(fs.read())
 
@@ -124,12 +122,12 @@ class Reader:
                 if fmt_raw.startswith('K'):
                     mo = re.match('^K([0xn])(\w{2})', fmt_raw)
                     n = self.__get_multiplier(field, body)
+                    fmt_act = mo.group(2)
 
                     for i in range(n):
-                        fmt_act = mo.group(2)
-                        fmt, buf = self.__get_buffer(fmt_act, body_raw)
-                        d, = struct.unpack(self.e + fmt, buf)
-                        array_data.append(d)
+                        data, odd_nibble = self.__get_data(fmt_act, body_raw, odd_nibble)
+                        array_data.append(data)
+
                     body[field] = array_data
                     odd_nibble = True
 
@@ -139,68 +137,87 @@ class Reader:
                     n, = struct.unpack('H', body_raw.read(2))
 
                     for i in range(n):
-                        idx = 0
-                        while idx == 0:
-                            idx, = struct.unpack(self.e + 'B', body_raw.read(1))
+                        idx, = struct.unpack(self.e + 'B', body_raw.read(1))
                         fmt_vn = vn_map[idx]
-                        fmt, buf = self.__get_buffer(fmt_vn, body_raw)
-                        d, = struct.unpack(self.e + fmt, buf)
-                        array_data.append(d)
+
+                        data, odd_nibble = self.__get_data(fmt_vn, body_raw, odd_nibble)
+                        array_data.append(data)
+
                     body[field] = array_data
                     odd_nibble = True
 
-                elif fmt_raw == 'N1':
-                    if odd_nibble:
-                        fmt, buf = self.__get_buffer(fmt_raw, body_raw)
-                        nibble, = struct.unpack(self.e + fmt, buf)
-                        lsb = nibble & 0xF
-                        msb = nibble >> 4
-                        body[field] = lsb
-                        odd_nibble = False
-                    else:
-                        body[field] = msb
-                        odd_nibble = True
-
                 else:
-                    fmt, buf = self.__get_buffer(fmt_raw, body_raw)
+                    body[field], odd_nibble = self.__get_data(fmt_raw, body_raw, odd_nibble)
 
-                    if fmt_raw == 'Bn':
-                        body[field] = struct.unpack(fmt, buf)
-                    else:
-                        body[field], = struct.unpack(fmt, buf)
-
-                    odd_nibble = True
         else:
-            self.log.error('record name={} ({}, {}), not found in self.STDF_TYPE'.format(rec_name, rec_typ, rec_sub))
-
-        # if rec_name not in ['EPS']:
-        #     self.log.debug('header={}, body={}'.format(rec_name, str(body)[:50]))
+            self.log.warn('record name={} ({}, {}), not found in self.STDF_TYPE'.format(rec_name, rec_typ, rec_sub))
 
         body_raw.close()
         return rec_name, body
 
-    def __get_buffer(self, fmt_raw, body_raw):
-        fmt = self.__get_format(fmt_raw, body_raw)
-        size = struct.calcsize(fmt)
+    def __get_data(self, fmt_act, body_raw, odd_nibble):
+        data = 0
+        if fmt_act == 'N1':
+            if odd_nibble:
+                nibble, = struct.unpack(self.e + 'B', body_raw.read(1))
+                _, data = nibble >> 4, nibble & 0xF
+                odd_nibble = False
+            else:
+                body_raw.seek(-1, 1)
+                nibble, = struct.unpack(self.e + 'B', body_raw.read(1))
+                data, _ = nibble >> 4, nibble & 0xF
+                odd_nibble = True
+        else:
+            fmt, buf = self.__get_format_and_buffer(fmt_act, body_raw)
 
-        buf = body_raw.read(size)
-        self.log.debug('fmt={}, buf={}'.format(fmt, buf))
-        return fmt, buf
+            if fmt:
+                d = struct.unpack(fmt, buf)
+                data = d[0] if len(d) == 1 else d
+            odd_nibble = True
+
+        return data, odd_nibble
+
+    def __get_format_and_buffer(self, fmt_raw, body_raw):
+        fmt = self.__get_format(fmt_raw, body_raw)
+        if fmt:
+            size = struct.calcsize(fmt)
+            buf = body_raw.read(size)
+            self.log.debug('fmt={}, buf={}'.format(fmt, buf))
+            return fmt, buf
+        else:
+            return 0, 0
 
     def __get_format(self, fmt_raw, body_raw):
         self.log.debug('fmt_raw={}, body_raw={}'.format(fmt_raw, body_raw))
+
         if fmt_raw in self.FMT_MAP:
             return self.FMT_MAP[fmt_raw]
-        elif fmt_raw in ['Cn']:
+
+        elif fmt_raw == 'Sn':
+            buf = body_raw.read(2)
+            n, = struct.unpack(self.e + 'H', buf)
+            posfix = 's'
+
+        elif fmt_raw == 'Cn':
             buf = body_raw.read(1)
             n, = struct.unpack(self.e + 'B', buf)
-            return str(n) + 's'
-        elif fmt_raw in ['Bn']:
+            posfix = 's'
+
+        elif fmt_raw == 'Bn':
             buf = body_raw.read(1)
             n, = struct.unpack(self.e + 'B', buf)
-            return str(n) + 'B'
+            posfix = 'B'
+
+        elif fmt_raw == 'Dn':
+            buf = body_raw.read(2)
+            h, = struct.unpack(self.e + 'H', buf)
+            n = math.ceil(h/8)
+            posfix = 'B'
         else:
-            raise ValueError
+            raise ValueError(fmt_raw, body_raw.tell(), body_raw.__sizeof__())
+
+        return str(n) + posfix if n else ''
+
 
     @staticmethod
     def __get_multiplier(field, body):
@@ -224,6 +241,27 @@ class Reader:
 
         elif field in ['RTN_RSLT']:
             return body['RSLT_CNT']  # MPR (15, 15)
+
+        elif field in ['UPD_NAM']:
+            return body['UPD_CNT']  # VUR (0, 30)
+
+        elif field in ["PAT_BGN", "PAT_END", "PAT_FILE", "PAT_FILE", "PAT_LBL", "FILE_UID", "ATPG_DSC", "SRC_ID"]:
+            return body["LOCP_CNT"]  # PSR (1, 90)
+
+        elif field in ["PMR_INDX", "ATPG_NAM"]:
+            return body["LOCM_CNT"]  # NMR (1, 91)
+
+        elif field in ["CHN_LIST"]:
+            return body["CHN_CNT"]  # SSR (1, 93)
+
+        elif field in ["M_CLKS"]:
+            return body["MSTR_CNT"]  # CDR (1, 94)
+
+        elif field in ["S_CLKS"]:
+            return body["SLAV_CNT"]  # CDR (1, 94)
+
+        elif field in ["CELL_LST"]:
+            return body["LST_CNT"]  # CDR (1, 94)
 
         else:
             raise ValueError

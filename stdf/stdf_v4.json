@@ -16,6 +16,15 @@
       ["CMD_LINE", "Cn"]   
     ]
   },
+
+  "VUR": {
+    "rec_typ": 0,
+    "rec_sub": 30,
+    "body": [
+      ["UPD_CNT", "U1"],
+      ["UPD_NAM", "K0Cn"]
+    ]
+  },
   
   "MIR": {
     "rec_typ": 1,
@@ -186,6 +195,80 @@
       ["LASR_ID", "Cn"],
       ["EXTR_TYP", "Cn"],
       ["EXTR_ID", "Cn"]
+    ]
+  },
+
+  "PSR": {
+    "rec_typ": 1,
+    "rec_sub": 90,
+    "body": [
+      ["CONT_FLG", "B1"],
+      ["PSR_INDX", "U2"],
+      ["PSR_NAM", "Cn"],
+      ["OPT_FLG", "B1"],
+      ["TOTP_CNT", "U2"],
+      ["LOCP_CNT", "U2"],
+      ["PAT_BGN", "K0U8"],
+      ["PAT_END", "K0U8"],
+      ["PAT_FILE", "K0Cn"],
+      ["PAT_FILE", "K0Cn"],
+      ["PAT_LBL", "K0Cn"],
+      ["FILE_UID", "K0Cn"],
+      ["ATPG_DSC", "K0Cn"],
+      ["SRC_ID", "K0Cn"]
+    ]
+  },
+
+  "NMR": {
+    "rec_typ": 1,
+    "rec_sub": 91,
+    "body": [
+      ["CONT_FLG", "B1"],
+      ["NMR_INDX", "U2"],
+      ["TOTM_CNT", "U2"],
+      ["LOCM_CNT", "U2"],
+      ["PMR_INDX", "K0U2"],
+      ["ATPG_NAM", "K0Cn"]
+    ]
+  },
+
+  "CNR": {
+    "rec_typ": 1,
+    "rec_sub": 92,
+    "body": [
+      ["CHN_NUM", "U2"],
+      ["BIT_POS", "U4"],
+      ["CELL_NAM", "Sn"]
+    ]
+  },
+
+  "SSR": {
+    "rec_typ": 1,
+    "rec_sub": 93,
+    "body": [
+      ["SSR_NAM", "Cn"],
+      ["CHN_CNT", "U2"],
+      ["CHN_LIST", "K0U2"]
+    ]
+  },
+
+  "CDR": {
+    "rec_typ": 1,
+    "rec_sub": 94,
+    "body": [
+      ["CONT_FLG", "B1"],
+      ["CDR_INDX", "U2"],
+      ["CHN_NAM", "Cn"],
+      ["CHN_LEN", "U4"],
+      ["SIN_PIN", "U2"],
+      ["SOUT_PIN", "U2"],
+      ["MSTR_CNT", "U1"],
+      ["M_CLKS", "K0U2"],
+      ["SLAV_CNT", "U1"],
+      ["S_CLKS", "K0U2"],
+      ["INV_VAL", "U1"],
+      ["LST_CNT", "U2"],
+      ["CELL_LST", "K0Sn"]
     ]
   },
 
@@ -381,6 +464,29 @@
       ["RSLT_TXT","Cn"],
       ["PATG_NUM","U1"],
       ["SPIN_MAP","Dn"]
+    ]
+  },
+
+  "STR": {
+    "rec_typ": 15,
+    "rec_sub": 30,
+    "body": [
+      ["HEAD_NUM","U1"],
+      ["SITE_NUM","U1"],
+      ["TEST_TYP","C1"],
+      ["TEST_NUM","U4"],
+      ["EXEC_CNT","U4"],
+      ["FAIL_CNT","U4"],
+      ["ALRM_CNT","U4"],
+      ["TEST_NAM","Cn"],
+      ["SEQ_NAME","Cn"],
+      ["TEST_LBL","Cn"],
+      ["OPT_FLAG","B1"],
+      ["TEST_TIM","R4"],
+      ["TEST_MIN","R4"],
+      ["TEST_MAX","R4"],
+      ["TST_SUMS","R4"],
+      ["TST_SQRS","R4"]
     ]
   },
 

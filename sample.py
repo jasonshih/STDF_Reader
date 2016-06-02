@@ -18,7 +18,7 @@ THE SOFTWARE."""
 from stdf.stdf_reader import Reader
 from stdf.stdf_writer import Writer
 import logging
-
+from pathlib import Path
 
 __author__ = 'cahyo primawidodo 2016'
 
@@ -26,25 +26,24 @@ __author__ = 'cahyo primawidodo 2016'
 if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
-    # w = Writer()
-    # # w.load_stdf_type(json_file='stdf/stdf_v4.json')
-    # w.load_stdf_type(json_file='tests/stdf_test.json')
 
-    pass
+    p = Path('/Users/cahyo/Documents/data/oca')
+    in_file = str(p / 'ASETKH-UFLX0058_1_WSBU-NN450-12B-04p1_1_DP5403.K2_15_20150303175521.stdf')
 
     stdf = Reader('stdf/stdf_v4.json')
-    stdf.load_stdf_file(stdf_file='ASETKH-UFLX0058_1_WSBU-NN450-12B-04p1_1_DP5403.K2_15_20150303175521.stdf')
-
-    size = stdf.STDF_IO.__sizeof__()
-    last, now = 0, 0
+    stdf.load_stdf_file(stdf_file=in_file)
 
     with open('output.txt', mode='wt', encoding='utf-8') as fout:
         for rec_name, header, body in stdf:
-            now = stdf.STDF_IO.tell()
 
-            if rec_name == 'PRR':
-                print(body)
+            for r in rec_name:
+                fout.write(r)
 
-            if (now - last) > 0.1 * size:
-                logging.error('*')
-                last = now
+                if fout.tell() % 100 == 0:
+                    fout.write('\n')
+
+            for k, v in body.items():
+                fout.write('.')
+
+                if fout.tell() % 100 == 0:
+                    fout.write('\n')
