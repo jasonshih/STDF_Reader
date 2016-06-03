@@ -21,6 +21,7 @@ import struct
 import logging
 import re
 import math
+from os import path
 
 __author__ = 'cahyo primawidodo 2016'
 
@@ -28,7 +29,7 @@ __author__ = 'cahyo primawidodo 2016'
 class Reader:
     HEADER_SIZE = 4
 
-    def __init__(self, stdf_type_json='stdf/stdf_v4.json'):
+    def __init__(self, stdf_ver_json=None):
         self.log = logging.getLogger(self.__class__.__name__)
         self.STDF_TYPE = {}
         self.STDF_IO = io.BytesIO(b'')
@@ -39,10 +40,18 @@ class Reader:
         self.body_start = 0
 
         self._load_byte_fmt_mapping()
-        self._load_stdf_type(json_file=stdf_type_json)
+        self._load_stdf_type(json_file=stdf_ver_json)
 
     def _load_stdf_type(self, json_file):
-        with open(json_file) as fp:
+
+        if json_file is None:
+            here = path.abspath(path.dirname(__file__))
+            input_file = path.join(here, 'stdf_v4.json')
+        else:
+            input_file = json_file
+
+        self.log.info('loading STDF configuration file = {}'.format(input_file))
+        with open(input_file) as fp:
             self.STDF_TYPE = json.load(fp)
 
         for k, v in self.STDF_TYPE.items():
@@ -67,9 +76,10 @@ class Reader:
             }
 
     def load_stdf_file(self, stdf_file):
-        folder = ''
-        with open(folder + stdf_file, mode='rb') as fs:
+        self.log.info('opening STDF file = {}'.format(stdf_file))
+        with open(stdf_file, mode='rb') as fs:
             self.STDF_IO = io.BytesIO(fs.read())
+        self.log.info('detecting STDF file size = {}'.format(len(self.STDF_IO.getvalue())))
 
     def read_record(self):
         header = self._read_and_unpack_header()

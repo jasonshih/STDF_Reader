@@ -8,7 +8,7 @@ such as Teradyne, Advantest and LTX testers.
 
 ### Usage
     from stdf.stdf_reader import Reader()
-    stdf = Reader('stdf/stdf_v4.json')
+    stdf = Reader()
     stdf.load_stdf_file(stdf_file='input_file.std')
     
     for rec_name, header, body in stdf:
