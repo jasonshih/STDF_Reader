@@ -11,56 +11,35 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+classifiers = """
+Development Status :: 3 - Alpha
+Intended Audience :: Developers
+Intended Audience :: Information Technology
+Intended Audience :: Manufacturing
+Topic :: Database
+Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)
+Topic :: Scientific/Engineering :: Information Analysis
+Topic :: Utilities
+License :: OSI Approved :: MIT License
+Programming Language :: Python :: 3.3
+Programming Language :: Python :: 3.4
+Programming Language :: Python :: 3.5
+"""
+
 setup(
     name='stdf',
-
-    # Versions should comply with PEP440.  For a discussion on single-sourcing
-    # the version across setup.py and the project code, see
-    # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.4',
-
+    version='0.1.5',
     description='Read a raw STDF file and iterate between records, easily.',
     long_description=long_description,
-
-    # The project's main homepage.
     url='https://github.com/cahoy/STDF_Reader',
-
-    # Author details
     author='Cahyo Primawidodo',
     author_email='cahyo.p@gmail.com',
-
-    # Choose your license
     license='MIT',
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
-    classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
-
-        # Indicate who your project is intended for
-        'Intended Audience :: Developers',
-        'Intended Audience :: Information Technology',
-        'Intended Audience :: Manufacturing',
-
-        'Topic :: Database',
-        'Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)',
-        'Topic :: Scientific/Engineering :: Information Analysis',
-        'Topic :: Utilities',
-
-        # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: MIT License',
-
-        # Specify the Python versions you support here. In particular, ensure
-        # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-    ],
-
-    # What does your project relate to?
+    classifiers=[x for x in classifiers.split('\n') if x],
     keywords='stdf read write binary ATE',
 
     # You can just specify the packages manually here if your project is
@@ -90,8 +69,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'stdf': ['stdf_v4.json', 'fmt_mapping.json'],
-        '': ['README.md']
+        'stdf': ['stdf_v4.json']
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
