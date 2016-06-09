@@ -21,8 +21,7 @@
     "rec_typ": 0,
     "rec_sub": 30,
     "body": [
-      ["UPD_CNT", "U1"],
-      ["UPD_NAM", "K0Cn"]
+      ["UPD_NAM", "Cn"]
     ]
   },
   

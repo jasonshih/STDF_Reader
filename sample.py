@@ -29,21 +29,23 @@ if __name__ == '__main__':
 
     p = Path('/Users/cahyo/Documents/data/oca')
     in_file = str(p / 'ASETKH-UFLX0058_1_WSBU-NN450-12B-04p1_1_DP5403.K2_15_20150303175521.stdf')
+    # in_file = str(p / 'TMGW07B_CP1_T6C374-02D0_20150609193541.stdf')
 
     stdf = Reader()
     stdf.load_stdf_file(stdf_file=in_file)
+    stdf.list_records()
 
-    with open('output.txt', mode='wt', encoding='utf-8') as fout:
-        for rec_name, header, body in stdf:
-
-            for r in rec_name:
-                fout.write(r)
-
-                if fout.tell() % 100 == 0:
-                    fout.write('\n')
-
-            for k, v in body.items():
-                fout.write('.')
-
-                if fout.tell() % 100 == 0:
-                    fout.write('\n')
+    # with open('output.txt', mode='wt', encoding='utf-8') as fout:
+    #     for rec_name, header, body in stdf:
+    #
+    #         for r in rec_name:
+    #             fout.write(r)
+    #
+    #             if fout.tell() % 100 == 0:
+    #                 fout.write('\n')
+    #
+    #         for k, v in body.items():
+    #             fout.write('.')
+    #
+    #             if fout.tell() % 100 == 0:
+    #                 fout.write('\n')

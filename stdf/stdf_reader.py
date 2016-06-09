@@ -22,11 +22,12 @@ import logging
 import re
 import math
 from os import path
+from collections import Counter
 
 __author__ = 'cahyo primawidodo 2016'
 
 
-class Reader:
+class Reader():
     HEADER_SIZE = 4
 
     def __init__(self, stdf_ver_json=None):
@@ -79,7 +80,7 @@ class Reader:
         self.log.info('opening STDF file = {}'.format(stdf_file))
         with open(stdf_file, mode='rb') as fs:
             self.STDF_IO = io.BytesIO(fs.read())
-        self.log.info('detecting STDF file size = {}'.format(len(self.STDF_IO.getvalue())))
+        self.log.info('detecting STDF file size = {:,}'.format(len(self.STDF_IO.getvalue())))
 
     def read_record(self):
         header = self._read_and_unpack_header()
@@ -97,7 +98,7 @@ class Reader:
             return rec_name, header, body
 
         else:
-            self.log.info('closing STDF_IO at tell={:0>8}'.format(self.STDF_IO.tell()))
+            self.log.info('closing STDF_IO at tell={:,}'.format(self.STDF_IO.tell()))
             self.STDF_IO.close()
             return False
 
@@ -127,6 +128,7 @@ class Reader:
 
         body = {}
         if rec_name in self.STDF_TYPE:
+            # TODO: failed at Bongo's VUR
             for field, fmt_raw in self.STDF_TYPE[rec_name]['body']:
                 self.log.debug('field={}, fmt_raw={}'.format(field, fmt_raw))
 
@@ -267,8 +269,8 @@ class Reader:
         elif field in ['RTN_RSLT']:
             return body['RSLT_CNT']  # MPR (15, 15)
 
-        elif field in ['UPD_NAM']:
-            return body['UPD_CNT']  # VUR (0, 30)
+        # elif field in ['UPD_NAM']:
+        #     return body['UPD_CNT']  # VUR (0, 30)
 
         elif field in ["PAT_BGN", "PAT_END", "PAT_FILE", "PAT_FILE", "PAT_LBL", "FILE_UID", "ATPG_DSC", "SRC_ID"]:
             return body["LOCP_CNT"]  # PSR (1, 90)
@@ -300,3 +302,26 @@ class Reader:
             return r
         else:
             raise StopIteration
+
+    def list_records(self):
+        count = Counter()
+        repetition = Counter()
+        pend = '\n'
+        last_rec = None
+
+        for rec_name, header, body in self:
+            count[rec_name] += 1
+
+            if rec_name in ['PTR', 'FTR', 'STR', 'DTR']:
+                rec_name = 'PTR/FTR/STR/DTR'
+
+            if rec_name == last_rec:
+                repetition[rec_name] += 1
+            else:
+                if rec_name == 'PIR':
+                    pend = ' '
+                elif rec_name == 'PRR':
+                    pend = '\n'
+                print(rec_name, end=pend)
+                repetition[rec_name] = 0
+            last_rec = rec_name
