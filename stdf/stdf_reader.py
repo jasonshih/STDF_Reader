@@ -29,6 +29,7 @@ __author__ = 'cahyo primawidodo 2016'
 
 class Reader:
     HEADER_SIZE = 4
+    HEADER_RECORDS = ['FAR', 'ATR', 'VUR', 'MIR', 'RDR', 'SDR']
 
     def __init__(self, stdf_ver_json=None):
         self.log = logging.getLogger(self.__class__.__name__)
@@ -130,7 +131,6 @@ class Reader:
 
         body = {}
         if rec_name in self.STDF_TYPE:
-            # TODO: failed at Bongo's VUR
             for field, fmt_raw in self.STDF_TYPE[rec_name]['body']:
                 self.log.debug('field={}, fmt_raw={}'.format(field, fmt_raw))
 
@@ -194,6 +194,10 @@ class Reader:
             if fmt:
                 d = struct.unpack(fmt, buf)
                 data = d[0] if len(d) == 1 else d
+
+                if 'C' in fmt_act: # return string for STDF format = Cn
+                    data = data.decode()
+
             odd_nibble = True
 
         return data, odd_nibble
@@ -309,7 +313,7 @@ class Reader:
         count = Counter()
         repetition = Counter()
         last_rec_group = []
-        per_device_group = ['PTR', 'FTR', 'PSR', 'STR', 'DTR']
+        per_device_group = ['PTR', 'MPR', 'FTR', 'STR', 'DTR']
         per_touch_down_group = ['PIR', 'BPS', 'PTR', 'FTR', 'PSR', 'STR', 'DTR', 'EPS', 'PRR']
 
         for rec_name, header, body in self:
