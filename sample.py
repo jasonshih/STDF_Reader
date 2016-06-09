@@ -25,15 +25,18 @@ __author__ = 'cahyo primawidodo 2016'
 
 if __name__ == '__main__':
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.ERROR)
 
-    p = Path('/Users/cahyo/Documents/data/oca')
-    in_file = str(p / 'ASETKH-UFLX0058_1_WSBU-NN450-12B-04p1_1_DP5403.K2_15_20150303175521.stdf')
-    # in_file = str(p / 'TMGW07B_CP1_T6C374-02D0_20150609193541.stdf')
+    # p = Path('/Users/cahyo/Documents/data/oca')
+    p = Path('C:/Users/cahyop/Documents/Python_Scripts/data/oca')
+    # in_file = str(p / 'ASETKH-UFLX0079_1_EN1U-NN876-12C-04_July1_1_DP6069.03_06_20150701180653.stdf')
+    # in_file = str(p / 'Dev#9_room.std')
+    in_file = str(p / 'UFLEX103_PAPAYA-12D_3R38424.1-ENG_1_ES8U-N4958-12D-23p3_Apr09_06_13_36.stdf')
 
     stdf = Reader()
     stdf.load_stdf_file(stdf_file=in_file)
-    stdf.list_records()
+    stdf.show_known_records()
+    # stdf.show_records_structure()
 
     # with open('output.txt', mode='wt', encoding='utf-8') as fout:
     #     for rec_name, header, body in stdf:

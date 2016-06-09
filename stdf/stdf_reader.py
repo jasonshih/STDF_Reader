@@ -22,12 +22,12 @@ import logging
 import re
 import math
 from os import path
-from collections import Counter
+from collections import Counter, defaultdict
 
 __author__ = 'cahyo primawidodo 2016'
 
 
-class Reader():
+class Reader:
     HEADER_SIZE = 4
 
     def __init__(self, stdf_ver_json=None):
@@ -35,6 +35,7 @@ class Reader():
         self.STDF_TYPE = {}
         self.STDF_IO = io.BytesIO(b'')
         self.REC_NAME = {}
+        self.REC_FIELDS = defaultdict(list)
         self.FMT_MAP = {}
         self.e = '<'
 
@@ -58,6 +59,7 @@ class Reader():
         for k, v in self.STDF_TYPE.items():
             typ_sub = (v['rec_typ'], v['rec_sub'])
             self.REC_NAME[typ_sub] = k
+            self.REC_FIELDS[k].extend([x[0] for x in v['body']])
 
     def _load_byte_fmt_mapping(self):
         self.FMT_MAP = {
@@ -303,25 +305,50 @@ class Reader():
         else:
             raise StopIteration
 
-    def list_records(self):
+    def show_records_structure(self):
         count = Counter()
         repetition = Counter()
-        pend = '\n'
-        last_rec = None
+        last_rec_group = []
+        per_device_group = ['PTR', 'FTR', 'PSR', 'STR', 'DTR']
+        per_touch_down_group = ['PIR', 'BPS', 'PTR', 'FTR', 'PSR', 'STR', 'DTR', 'EPS', 'PRR']
 
         for rec_name, header, body in self:
             count[rec_name] += 1
 
-            if rec_name in ['PTR', 'FTR', 'STR', 'DTR']:
-                rec_name = 'PTR/FTR/STR/DTR'
-
-            if rec_name == last_rec:
+            if rec_name in last_rec_group:
                 repetition[rec_name] += 1
             else:
-                if rec_name == 'PIR':
-                    pend = ' '
-                elif rec_name == 'PRR':
-                    pend = '\n'
-                print(rec_name, end=pend)
                 repetition[rec_name] = 0
-            last_rec = rec_name
+                if rec_name not in per_touch_down_group[1:] + ['FAR']:   # PIR -- other recs -- PRR
+                    print('')
+
+                if rec_name in per_device_group:
+                    print('/'.join(per_device_group), end=' ')
+                else:
+                    print(rec_name, end=' ')
+
+                if rec_name not in per_touch_down_group:
+                    print(':', end=' ')
+                    for i, fld in enumerate(self.REC_FIELDS[rec_name]):
+                        if fld in body:
+                            if i % 10 == 0 and i > 0:
+                                print('\n' + ' '*6, end='')
+                            if len(fld) > 10:
+                                self.log.warn('truncated field name: {}'.format(fld))
+                            print('{:<10}'.format(fld), end='\t')
+
+            if rec_name in per_device_group:
+                last_rec_group = per_device_group
+            else:
+                last_rec_group = [rec_name]
+
+    def show_known_records(self):
+        for k, v in sorted(self.REC_NAME.items()):
+            print(v + ':', end=' ')
+            for i, fld in enumerate(self.REC_FIELDS[v]):
+                if i % 10 == 0 and i > 0:
+                    print('\n' + ' '*5, end='')
+                if len(fld) > 10:
+                    self.log.warn('truncated field name: {}'.format(fld))
+                print('{:<10}'.format(fld), end='\t')
+            print('')
